@@ -104,7 +104,7 @@ export default function App() {
         {/* 탭 네비게이터에 화면 추가 */}
         <Tab.Screen name="메인메뉴" component={HomeScreen} />
         <Tab.Screen name="레시피" component={RecipesScreen} />
-        <Tab.Screen name="냉장고예정" component={FridgeScreen} />
+        <Tab.Screen name="냉장고" component={FridgeScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
