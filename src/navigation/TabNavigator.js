@@ -7,11 +7,12 @@ import FridgeScreen from '../screens/FridgeScreen';
 
 const Tab = createBottomTabNavigator();
 
+// 하단 네비게이터
 const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color, size }) => {  // Expo Icon
           let iconName;
           if (route.name === '메인메뉴') {
             iconName = focused ? 'home' : 'home-outline';

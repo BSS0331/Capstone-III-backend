@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { FAB } from 'react-native-paper';
 
+// Home 화면
 const HomeScreen = () => {
   const [isFabOpen, setIsFabOpen] = useState(false);
 
   return (
     <View style={styles.container}>
       <Text style={styles.text}>메인메뉴 화면</Text>
-      <FAB.Group
+      <FAB.Group  // FAB 그룹 (설정, 수동 입력, 영수증, 바코드 버튼)
         open={isFabOpen}
         icon={isFabOpen ? 'close' : 'plus'}
         color= '#4E348B'
@@ -22,12 +23,13 @@ const HomeScreen = () => {
         onPress={() => {
           setIsFabOpen(!isFabOpen);
         }}
-        fabStyle={styles.fab} // FAB 스타일을 적용합니다
+        fabStyle={styles.fab} // FAB 스타일을 적용
       />
     </View>
   );
 };
 
+// FAB 스타일
 const styles = StyleSheet.create({
   container: {
     flex: 1,
