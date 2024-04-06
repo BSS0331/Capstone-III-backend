@@ -1,7 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import HomeScreen from '../screens/HomeScreen';
+
+import HomeStack from './HomeStack';
 import RecipesScreen from '../screens/RecipesScreen';
 import FridgeScreen from '../screens/FridgeScreen';
 
@@ -14,11 +15,11 @@ const TabNavigator = () => {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {  // Expo Icon
           let iconName;
-          if (route.name === '메인메뉴') {
+          if (route.name === 'Home') {  // '메인메뉴'
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === '레시피') {
+          } else if (route.name === 'Recipes') {  // '레시피'
             iconName = focused ? 'book' : 'book-outline';
-          } else if (route.name === '냉장고') {
+          } else if (route.name === 'Fridge') {  // 냉장고'
             iconName = focused ? 'restaurant' : 'restaurant-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -29,9 +30,9 @@ const TabNavigator = () => {
         inactiveTintColor: 'gray',
       }}
     >
-      <Tab.Screen name="메인메뉴" component={HomeScreen} />
-      <Tab.Screen name="레시피" component={RecipesScreen} />
-      <Tab.Screen name="냉장고" component={FridgeScreen} />
+      <Tab.Screen name="Home" component={HomeStack} options={{ title: '메인메뉴' }}/>
+      <Tab.Screen name="Recipes" component={RecipesScreen} options={{ title: '레시피' }}/>
+      <Tab.Screen name="Fridge" component={FridgeScreen} options={{ title: '냉장고' }}/>
     </Tab.Navigator>
   );
 };

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { FAB } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
 // Home 화면
 const HomeScreen = () => {
   const [isFabOpen, setIsFabOpen] = useState(false);
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -14,10 +16,10 @@ const HomeScreen = () => {
         icon={isFabOpen ? 'close' : 'plus'}
         color= '#4E348B'
         actions={[
-          { icon: 'cog', label: '설정', onPress: () => console.log('설정 Pressed'), small: false },
-          { icon: 'pencil', label: '수동 입력', onPress: () => console.log('수동 입력 Pressed'), small: false },
-          { icon: 'receipt', label: '영수증', onPress: () => console.log('영수증 Pressed'), small: false },
-          { icon: 'barcode', label: '바코드', onPress: () => console.log('바코드 Pressed'), small: false },
+          { icon: 'cog', label: '설정', onPress: () => navigation.navigate('Setting'), small: false },
+          { icon: 'pencil', label: '수동 입력', onPress: () => navigation.navigate('ManualEntry'), small: false },
+          { icon: 'receipt', label: '영수증', onPress: () => navigation.navigate('ReceiptCapture'), small: false },
+          { icon: 'barcode', label: '바코드', onPress: () => navigation.navigate('Barcode'), small: false },
         ]}
         onStateChange={({ open }) => setIsFabOpen(open)}
         onPress={() => {
