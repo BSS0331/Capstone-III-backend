@@ -1,6 +1,6 @@
-// HomeStack.js
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+
 import HomeScreen from '../screens/HomeScreen';
 import SettingScreen from '../screens/SettingScreen';
 import ManualEntryScreen from '../screens/ManualEntryScreen';
@@ -11,10 +11,10 @@ const Stack = createStackNavigator();
 
 const HomeStack = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
+    <Stack.Navigator>
       <Stack.Screen name="Home"
       component={HomeScreen}
-      options={{ headerShown: false }} />
+      options={{ title: '메인메뉴' }} />
       <Stack.Screen name="Setting"
       component={SettingScreen}
       options={{ title: '설정' }} />

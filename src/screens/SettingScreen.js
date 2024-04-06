@@ -1,26 +1,27 @@
-import React, { useLayoutEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const SettingScreen = ({ navigation }) => {
-    useLayoutEffect(() => {
-        navigation.setOptions({
-          
-        });
-      }, [navigation]);
+  useFocusEffect(
+    useCallback(() => {
+      const parent = navigation.getParent(); // 바텀 탭 네비게이터를 가져옵니다.
+      parent.setOptions({
+        tabBarStyle: { display: 'none' }, // 탭 바 숨기기
+        headerShown: false,
+      });
 
-    return (
-    <View style={styles.container}>
-      <Text>설정 화면</Text>
+      return () => parent.setOptions({
+        tabBarStyle: undefined, // 탭 바 다시 표시
+      });
+    }, [navigation])
+  );
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>수동 입력 화면</Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
 
 export default SettingScreen;

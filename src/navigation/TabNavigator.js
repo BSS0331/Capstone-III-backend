@@ -24,11 +24,15 @@ const TabNavigator = () => {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
+        tabBarActiveTintColor: 'tomato', // 활성 탭의 아이콘 색상
+        tabBarInactiveTintColor: 'gray', // 비활성 탭의 아이콘 색상
+        tabBarStyle: [ // 탭 바 스타일
+          {
+            display: 'flex'
+          },
+          null
+        ]
       })}
-      tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
-      }}
     >
       <Tab.Screen name="Home" component={HomeStack} options={{ title: '메인메뉴' }}/>
       <Tab.Screen name="Recipes" component={RecipesScreen} options={{ title: '레시피' }}/>
