@@ -34,7 +34,7 @@ const TabNavigator = () => {  // TabNavigator 컴포넌트를 함수형 컴포�
         ]
       })}
     >
-      <Tab.Screen name="Home" component={HomeStack} options={{ title: '메인메뉴' }}/>
+      <Tab.Screen name="Home" component={HomeStack} options={{ title: '메인메뉴', headerShown: false }}/>
       <Tab.Screen name="Recipes" component={RecipesScreen} options={{ title: '레시피' }}/>
       <Tab.Screen name="Fridge" component={FridgeScreen} options={{ title: '냉장고' }}/>
     </Tab.Navigator>

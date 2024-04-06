@@ -12,7 +12,7 @@ const Stack = createStackNavigator();  // 스택 네비게이터 생성
 const HomeStack = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home"
+      <Stack.Screen name="HomeStack"
       component={HomeScreen}
       options={{ title: '메인메뉴' }}
       />
