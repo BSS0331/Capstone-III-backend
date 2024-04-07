@@ -1,30 +1,182 @@
-import React, { useCallback } from 'react';
-import { View, Text } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';  // 임시
+
+import SocialLoginButton from '../components/common/SocialLoginButton';
+import SignUpScreen from './SignUpScreen';  // 임시
 
 const SettingScreen = ({ navigation }) => {
-  useFocusEffect(  // useFocusEffect 훅을 사용하여 화면이 포커스를 받을 때 실행될 콜백 함수를 등록
+  useFocusEffect(
     useCallback(() => {
-      const parent = navigation.getParent(); // 바텀 탭 네비게이터(상위)를 가져옴
+      const parent = navigation.getParent();
 
-      // 화면이 포커스를 받으면 탭 바와 헤더를 숨김
       parent.setOptions({
-        tabBarStyle: { display: 'none' }, // 탭 바 숨기기
-        headerShown: false,               // 헤더 숨기기
+        tabBarStyle: { display: 'none' },
+        headerShown: false,
       });
 
-      // 화면에서 벗어날 때 탭 바를 다시 표시
       return () => parent.setOptions({
-        tabBarStyle: undefined, // 탭 바 다시 표시
+        tabBarStyle: undefined,
       });
     }, [navigation])
   );
 
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // 로그인 확인
+  const checkLogin = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      if (userId) {
+        setIsLoggedIn(true);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // 로그인 처리 함수
+  const handleLogin = async () => {
+    await AsyncStorage.setItem('userId', id);
+    setIsLoggedIn(true);
+  };
+
+  // 소셜 로그인 처리 함수
+  const handleSocialLogin = async (socialType) => {
+    console.log(`${socialType} 로그인 실행`);
+    await AsyncStorage.setItem('userId', `${socialType}User`);
+    setIsLoggedIn(true);
+  };
+
+  // 로그아웃 처리 함수
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('userId');
+    setIsLoggedIn(false);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      checkLogin();
+    }, [])
+  );
+
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>설정 입력 화면</Text>
+    <View style={styles.container}>
+      {!isLoggedIn ? (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="아이디"
+            onChangeText={setId}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="비밀번호"
+            secureTextEntry
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>로그인</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.signupButton} onPress={() => navigation.navigate('SignUpScreen')}>
+            <Text style={styles.signupButtonText}>회원가입</Text>
+          </TouchableOpacity>
+
+          <View style={styles.socialLoginContainer}>
+            <SocialLoginButton
+              iconName={require('../assets/images/naver.png')}
+              onPress={() => handleSocialLogin('Naver')}
+            />
+            <SocialLoginButton
+              iconName={require('../assets/images/kakao.png')}
+              onPress={() => handleSocialLogin('KakaoTalk')}
+            />
+            <SocialLoginButton
+              iconName={require('../assets/images/google.png')}
+              onPress={() => handleSocialLogin('Google')}
+            />
+          </View>
+        </>
+      ) : (  // 로그인 상태일 때의 UI
+        <View style={styles.loggedInContainer}>
+          <Text style={styles.welcomeText}>환영합니다, {id}님!</Text>
+          <TouchableOpacity style={styles.editProfileButton} onPress={() => navigation.navigate('ProfileEdit')}>
+            <Text style={styles.editProfileButtonText}>프로필 수정</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>로그아웃</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  input: {
+    width: '100%',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginVertical: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  loginButton: {
+    backgroundColor: '#007AFF', // 로그인 버튼 배경 색
+    paddingVertical: 15, // 로그인 버튼의 세로 패딩
+    paddingHorizontal: 20, // 로그인 버튼의 가로 패딩
+    borderRadius: 10, // 로그인 버튼의 모서리 둥글기
+    marginTop: 20, // 로그인 버튼 상단 여백
+    width: '100%', // 로그인 버튼 너비
+    alignItems: 'center', // 로그인 버튼 내 텍스트 중앙 정렬
+  },
+  loginButtonText: {
+    color: 'white', // 로그인 버튼 텍스트 색
+    fontSize: 18, // 로그인 버튼 텍스트 크기
+  },
+  signupButton: {
+    position: 'absolute', // 회원가입 버튼을 절대 위치로 설정
+    right: 10, // 오른쪽에서 10의 위치
+    top: 10, // 상단에서 10의 위치
+    padding: 10, // 패딩
+  },
+  signupButtonText: {
+    color: '#007AFF', // 회원가입 버튼 텍스트 색
+    fontSize: 16, // 회원가입 버튼 텍스트 크기
+  },
+  profileButton: {
+    // 프로필 수정 버튼 스타일 (필요에 따라 조정)
+  },
+  logoutButton: {
+    // 로그아웃 버튼 스타일 (필요에 따라 조정)
+  },
+  socialLoginContainer: {
+    flexDirection: 'column', // 방향 수정
+    marginTop: 10,
+    alignItems: 'center', // 가운데 정렬로 수정
+  },
+  socialButton: {
+    width: 192, // 버튼 크기 조정
+    height: 48, // 버튼 크기 조정
+    resizeMode: 'contain',
+    marginBottom: 10, // 버튼 사이의 수직 간격 조정
+  },
+});
 
 export default SettingScreen;
