@@ -3,9 +3,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
 import HomeStack from './HomeStack';
+import RecipesScreen from './RecipeStack';
 import FridgeScreen from '../screens/FridgeScreen';
 import MypageScreen from '../screens/MypageScreen';
-import RecipesScreen from './RecipeStack';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -22,6 +23,8 @@ const TabNavigator = () => {
             iconName = focused ? 'book' : 'book-outline';
           } else if (route.name === 'Fridge') {
             iconName = focused ? 'restaurant' : 'restaurant-outline';
+          } else if (route.name === 'Mypage') {
+            iconName = focused ? 'person' : 'person-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
