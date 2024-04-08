@@ -1,52 +1,51 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { FAB } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
-const HomeScreen = ({ navigation }) => {
-  const [state, setState] = useState({ open: false });
-
-  const onStateChange = ({ open }) => setState({ open });
-  const { open } = state;
+// Home 화면
+const HomeScreen = () => {
+  const [isFabOpen, setIsFabOpen] = useState(false);  // FAB 그룹이 열려있는지 여부를 관리하는 상태
+  const navigation = useNavigation();                 // 네비게이션 객체를 가져옴
 
   return (
     <View style={styles.container}>
-      <Text>메인메뉴 화면</Text>
-      <FAB.Group
-        open={open}
-        icon={open ? 'close' : 'plus'}
-        actions={[
-          { icon: 'cog', label: '설정', onPress: () => console.log('설정 Pressed') },
-          { icon: 'pencil', label: '수동 입력', onPress: () => console.log('수동 입력 Pressed') },
-          { icon: 'receipt', label: '영수증', onPress: () => console.log('영수증 Pressed') },
-          { icon: 'barcode', label: '바코드', onPress: () => console.log('바코드 Pressed') },
+      <Text style={styles.text}>메인메뉴 화면</Text>
+      <FAB.Group  // FAB 그룹 (설정, 수동 입력, 영수증, 바코드 버튼)
+        open={isFabOpen}
+        icon={isFabOpen ? 'close' : 'plus'}  // 아이콘 (열려있으면 'close', 닫혀있으면 'plus')
+        color= '#4E348B'
+        actions={[  // FAB 그룹 내의 액션 버튼 배열
+          { icon: 'cog', label: '설정', onPress: () => navigation.navigate('Setting'), small: false },
+          { icon: 'pencil', label: '수동 입력', onPress: () => navigation.navigate('ManualEntry'), small: false },
+          { icon: 'receipt', label: '영수증', onPress: () => navigation.navigate('ReceiptCapture'), small: false },
+          { icon: 'barcode', label: '바코드', onPress: () => navigation.navigate('Barcode'), small: false },
         ]}
-        onStateChange={onStateChange}
+        onStateChange={({ open }) => setIsFabOpen(open)}
         onPress={() => {
-          if (open) {
-            // FAB를 닫음
-          }
+          setIsFabOpen(!isFabOpen);
         }}
-        fabStyle={styles.fab}
-        color="white"
+        fabStyle={styles.fab} // FAB 스타일을 적용
       />
     </View>
   );
 };
 
-// 플로팅 액션 버튼 스타일 정의
+// FAB 스타일
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  text: {
+    fontSize: 18,
+    marginBottom: 20,
   },
   fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'skyblue',
-    borderRadius: 50,
+    backgroundColor: '#EEE8F4',
+    borderRadius: 28,
   },
 });
 
