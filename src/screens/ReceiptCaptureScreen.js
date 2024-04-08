@@ -1,30 +1,38 @@
 import React, { useCallback } from 'react';
-import { View, Text } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
 import { useFocusEffect } from '@react-navigation/native';
+import RecipesScreen from '../screens/RecipesScreen';
+import SearchScreen from '../screens/SearchScreen';
 
-const ReceiptCaptureScreen = ({ navigation }) => {
-  useFocusEffect(  // useFocusEffect 훅을 사용하여 화면이 포커스를 받을 때 실행될 콜백 함수를 등록
-    useCallback(() => {
-      const parent = navigation.getParent(); // 바텀 탭 네비게이터(상위)를 가져옴
+const Stack = createStackNavigator();
 
-      // 화면이 포커스를 받으면 탭 바와 헤더를 숨김
-      parent.setOptions({
-        tabBarStyle: { display: 'none' }, // 탭 바 숨기기
-        headerShown: false,               // 헤더 숨기기
-      });
+const RecipesStack = ({ navigation }) => {
+    useFocusEffect(
+        useCallback(() => {
+            const parent = navigation.getParent(); // 상위 네비게이터를 가져옴
 
-      // 화면에서 벗어날 때 탭 바를 다시 표시
-      return () => parent.setOptions({
-        tabBarStyle: undefined, // 탭 바 다시 표시
-      });
-    }, [navigation])
-  );
+            // parent가 존재하면 탭 바와 헤더를 숨김
+            if (parent) {
+                parent.setOptions({
+                    tabBarStyle: { display: 'none' },
+                    headerShown: false,
+                });
 
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>영수증 입력 화면</Text>
-    </View>
-  );
+                // 화면에서 벗어날 때 탭 바와 헤더를 다시 표시
+                return () => parent.setOptions({
+                    tabBarStyle: undefined,
+                    headerShown: true,
+                });
+            }
+        }, [navigation])
+    );
+
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="Recipes" component={RecipesScreen} />
+            <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ title: '검색' }} />
+        </Stack.Navigator>
+    );
 };
 
-export default ReceiptCaptureScreen;
+export default RecipesStack;

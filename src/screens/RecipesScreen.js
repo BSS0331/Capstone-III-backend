@@ -10,12 +10,12 @@ const RecipesScreen = ({ navigation }) => {
   };
 
   const galleryImages = [
-    'https://via.placeholder.com/300x600',
-    'https://via.placeholder.com/300x600',
-    'https://via.placeholder.com/300x600',
-    'https://via.placeholder.com/300x600',
-    'https://via.placeholder.com/300x600',
-    'https://via.placeholder.com/300x600',
+    'https://via.placeholder.com/100x150',
+    'https://via.placeholder.com/100x150',
+    'https://via.placeholder.com/100x150',
+    'https://via.placeholder.com/100x150',
+    'https://via.placeholder.com/100x150',
+    'https://via.placeholder.com/100x150',
      // 세로로 긴 이미지 URL
   ];
 
@@ -87,10 +87,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   galleryImage: {
-    width: 100,
+    width: 200,
     height: 150,
     marginRight: 10,
     marginLeft: 10,
+    marginTop: 40,
   },
 });
 
