@@ -4,7 +4,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';  // 임시
 
 import SocialLoginButton from '../components/common/SocialLoginButton';
-import SignUpScreen from './SignUpScreen';  // 임시
 
 const SettingScreen = ({ navigation }) => {
   useFocusEffect(
@@ -15,6 +14,8 @@ const SettingScreen = ({ navigation }) => {
         tabBarStyle: { display: 'none' },
         headerShown: false,
       });
+
+      checkLogin();
 
       return () => parent.setOptions({
         tabBarStyle: undefined,
@@ -57,12 +58,6 @@ const SettingScreen = ({ navigation }) => {
     setIsLoggedIn(false);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      checkLogin();
-    }, [])
-  );
-
   return (
     <View style={styles.container}>
       {!isLoggedIn ? (
@@ -87,15 +82,15 @@ const SettingScreen = ({ navigation }) => {
 
           <View style={styles.socialLoginContainer}>
             <SocialLoginButton
-              iconName={require('../assets/images/naver.png')}
+              iconSource={require('../assets/images/naver.png')}
               onPress={() => handleSocialLogin('Naver')}
             />
             <SocialLoginButton
-              iconName={require('../assets/images/kakao.png')}
+              iconSource={require('../assets/images/kakao.png')}
               onPress={() => handleSocialLogin('KakaoTalk')}
             />
             <SocialLoginButton
-              iconName={require('../assets/images/google.png')}
+              iconSource={require('../assets/images/google.png')}
               onPress={() => handleSocialLogin('Google')}
             />
           </View>
@@ -167,15 +162,11 @@ const styles = StyleSheet.create({
     // 로그아웃 버튼 스타일 (필요에 따라 조정)
   },
   socialLoginContainer: {
-    flexDirection: 'column', // 방향 수정
-    marginTop: 10,
+    flexDirection: 'row', // 방향 수정
+    marginTop: 20,
     alignItems: 'center', // 가운데 정렬로 수정
-  },
-  socialButton: {
-    width: 192, // 버튼 크기 조정
-    height: 48, // 버튼 크기 조정
-    resizeMode: 'contain',
-    marginBottom: 10, // 버튼 사이의 수직 간격 조정
+    justifyContent: 'space-evenly',
+    width: '78%',
   },
 });
 
