@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   loginButton: {
-    backgroundColor: '#007AFF', // 로그인 버튼 배경 색
+    backgroundColor: '#EEE8F4', // 로그인 버튼 배경 색
     paddingVertical: 15, // 로그인 버튼의 세로 패딩
     paddingHorizontal: 20, // 로그인 버튼의 가로 패딩
     borderRadius: 10, // 로그인 버튼의 모서리 둥글기
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', // 로그인 버튼 내 텍스트 중앙 정렬
   },
   loginButtonText: {
-    color: 'white', // 로그인 버튼 텍스트 색
+    color: '#4E348B', // 로그인 버튼 텍스트 색
     fontSize: 18, // 로그인 버튼 텍스트 크기
   },
   signupButton: {
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     padding: 10, // 패딩
   },
   signupButtonText: {
-    color: '#007AFF', // 회원가입 버튼 텍스트 색
+    color: '#4E348B', // 회원가입 버튼 텍스트 색
     fontSize: 16, // 회원가입 버튼 텍스트 크기
   },
   profileButton: {
