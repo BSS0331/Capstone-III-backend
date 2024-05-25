@@ -1,44 +1,32 @@
-from django.shortcuts import render
-
-# Create your views here.
 import os
 import secrets
 import requests
-from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from django.conf import settings
-from rest_framework import status
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
-from .serializers import UserRegistrationSerializer, UserLoginSerializer
+from rest_framework import status, generics, views, permissions
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import generics, views
-from .models import Post, Comment, User
-from .serializers import PostSerializer, CommentSerializer
-from django.contrib.auth import get_user_model
+from django.utils import timezone
 
+from .models import Post, Comment, User, FoodExpiration, Category, Ingredient
+from .serializers import (
+    UserRegistrationSerializer, UserLoginSerializer,
+    PostSerializer, CommentSerializer, FoodExpirationSerializer, CommentCreateUpdateSerializer, CategorySerializer,
+    IngredientSerializer, PostCreateUpdateSerializer
+)
 
-# REST API 기본 테스트 함수
+# Basic REST API test function
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def hello_rest_api(request):
     data = {'message': 'Hello, REST API!'}
-    return Response(data)
-
-# 사용자 로그인 API
-
-
-class SignupView(APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class LoginView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -46,74 +34,89 @@ class LoginView(APIView):
             password = serializer.validated_data['password']
             user = authenticate(request, email=email, password=password)
             if user:
+                user.last_login = timezone.now()
+                user.save()
                 login(request, user)
-                return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Login successful', 'email': email}, status=status.HTTP_200_OK)
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# Google 로그인 및 콜백 처리
-def google_login(request):
-    params = {
-        'client_id': settings.GOOGLE_CLIENT_ID,
-        'redirect_uri': settings.GOOGLE_REDIRECT_URI,
-        'response_type': 'code',
-        'scope': 'email profile'
-    }
-    auth_url = 'https://accounts.google.com/o/oauth2/auth?' + '&'.join(f'{k}={v}' for k, v in params.items())
-    return redirect(auth_url)
 
+# Google login and callback
 @api_view(['GET'])
-def initiate_auth(request):
-    state = secrets.token_urlsafe()
+def google_login(request):
+    client_id = settings.GOOGLE_CLIENT_ID
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    state = secrets.token_hex(16)
     request.session['oauth_state'] = state
-    params = {
-        'client_id': os.getenv('GOOGLE_CLIENT_ID'),
-        'response_type': 'code',
-        'scope': 'email profile',
-        'redirect_uri': os.getenv('GOOGLE_REDIRECT_URI'),
-        'state': state
-    }
-    auth_url = 'https://accounts.google.com/o/oauth2/auth?' + '&'.join(f'{k}={v}' for k, v in params.items())
+    auth_url = (
+        f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}"
+        f"&response_type=code&scope=openid%20email%20profile&state={state}"
+    )
     return redirect(auth_url)
 
 @api_view(['GET'])
 def google_callback(request):
-    received_state = request.GET.get('state')
-    code = request.GET.get('code')
-    expected_state = request.session.get('oauth_state')
+    code = request.GET.get("code")
+    state = request.GET.get("state")
 
-    if received_state != expected_state:
-        return Response({'error': 'Invalid state parameter'}, status=400)
+    if state != request.session.get('oauth_state'):
+        return Response({'error': 'Invalid state parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
-    token_url = 'https://oauth2.googleapis.com/token'
-    data = {
-        'client_id': settings.GOOGLE_CLIENT_ID,
-        'client_secret': settings.GOOGLE_CLIENT_SECRET,
-        'redirect_uri': settings.GOOGLE_REDIRECT_URI,
-        'grant_type': 'authorization_code',
-        'code': code,
-    }
-    token_response = requests.post(token_url, data=data)
+    token_request = requests.post(
+        "https://oauth2.googleapis.com/token",
+        data={
+            'client_id': settings.GOOGLE_CLIENT_ID,
+            'client_secret': settings.GOOGLE_CLIENT_SECRET,
+            'code': code,
+            'grant_type': 'authorization_code',
+            'redirect_uri': settings.GOOGLE_REDIRECT_URI
+        }
+    )
+    token_json = token_request.json()
+    access_token = token_json.get("access_token")
 
-    access_token = token_response.json().get('access_token')
-    user_info_url = 'https://www.googleapis.com/oauth2/v1/userinfo'
+    profile_request = requests.get(
+        "https://www.googleapis.com/oauth2/v1/userinfo",
+        params={'alt': 'json', 'access_token': access_token}
+    )
+    profile_json = profile_request.json()
+    email = profile_json.get("email")
+    name = profile_json.get("name")
+    social_login_id = profile_json.get("id")
 
-    headers = {'Authorization': f'Bearer {access_token}'}
-    user_info_response = requests.get(user_info_url, headers=headers)
-    user_info = user_info_response.json()
+    user, created = User.objects.get_or_create(email=email)
+    if created:
+        user.username = name
+        user.social_login_id = social_login_id
+        user.social_login_provider = 'google'
+    else:
+        user.social_login_id = social_login_id
+        user.social_login_provider = 'google'
+    user.last_login = timezone.now()
+    user.save()
 
-    email = user_info.get('email')
-    redirect_url = f"{os.getenv('FRONTEND_URL')}/login-success/?email={email}"
-    return Response({'redirect_url': redirect_url})
+    return Response({'id': user.id, 'email': email, 'name': name, 'token': access_token})
 
-# 네이버 로그인 및 콜백 처리
+# Naver login and callback
 @api_view(['GET'])
 def naver_login(request):
-    url = f'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={settings.NAVER_CLIENT_ID}&redirect_uri={settings.NAVER_REDIRECT_URI}'
+    state = secrets.token_hex(16)
+    request.session['oauth_state'] = state
+    url = (
+        f"https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id={settings.NAVER_CLIENT_ID}"
+        f"&redirect_uri={settings.NAVER_REDIRECT_URI}&state={state}"
+    )
+    print(url)
     return redirect(url)
 
+@api_view(['GET'])
 def naver_callback(request):
     code = request.GET.get('code')
     state = request.GET.get('state')
+    print(code)
+
+    if state != request.session.get('oauth_state'):
+        return Response({'error': 'Invalid state parameter'}, status=status.HTTP_400_BAD_REQUEST)
 
     if not code:
         return JsonResponse({'error': 'Code is missing'}, status=400)
@@ -128,46 +131,178 @@ def naver_callback(request):
             'state': state
         }
     )
-    access_token = token_response.json().get('access_token')
+    token_json = token_response.json()
+    access_token = token_json.get('access_token')
 
     profile_response = requests.get(
         "https://openapi.naver.com/v1/nid/me",
         headers={'Authorization': f'Bearer {access_token}'}
     )
     profile_data = profile_response.json()
+    response = profile_data.get('response', {})
+    email = response.get('email')
+    name = response.get('name')
+    social_login_id = response.get('id')
 
-    email = profile_data.get('response', {}).get('email')
-    name = profile_data.get('response', {}).get('name')
+    if not email:
+        return Response({'error': 'Naver account does not have an email'}, status=status.HTTP_400_BAD_REQUEST)
 
-    return JsonResponse({
-        'message': 'Naver login success',
-        'name': name,
-        'email': email
-    })
+    user, created = User.objects.get_or_create(email=email)
+    if created:
+        user.username = name
+        user.social_login_id = social_login_id
+        user.social_login_provider = 'naver'
+    else:
+        user.social_login_id = social_login_id
+        user.social_login_provider = 'naver'
+    user.last_login = timezone.now()
+    user.save()
 
-# 게시물 및 댓글 관련 API 뷰
-class PostListView(generics.ListAPIView):
+
+    return Response({'id': user.id, 'email': email, 'name': name, 'token': access_token})
+
+# Kakao login and callback
+@api_view(['GET'])
+def kakao_login(request):
+    auth_url = (
+        f"https://kauth.kakao.com/oauth/authorize?client_id={settings.KAKAO_CLIENT_ID}"
+        f"&redirect_uri={settings.KAKAO_REDIRECT_URI}&response_type=code"
+    )
+    return redirect(auth_url)
+
+@api_view(['GET'])
+def kakao_callback(request):
+    code = request.GET.get("code")
+
+    token_request = requests.post(
+        "https://kauth.kakao.com/oauth/token",
+        data={
+            'grant_type': 'authorization_code',
+            'client_id': settings.KAKAO_CLIENT_ID,
+            'redirect_uri': settings.KAKAO_REDIRECT_URI,
+            'code': code
+        }
+    )
+    token_json = token_request.json()
+    access_token = token_json.get("access_token")
+
+    if not access_token:
+        return Response({'error': 'Failed to obtain access token from Kakao'}, status=status.HTTP_400_BAD_REQUEST)
+
+    profile_request = requests.get(
+        "https://kapi.kakao.com/v2/user/me",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+    profile_json = profile_request.json()
+    kakao_account = profile_json.get("kakao_account", {})
+    email = kakao_account.get("email")
+    profile = kakao_account.get("profile", {})
+    name = profile.get("nickname")
+    social_login_id = str(profile_json.get("id"))
+
+    if not email:
+        return Response({'error': 'Kakao account does not have an email'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user, created = User.objects.get_or_create(email=email)
+    if created:
+        user.username = name
+        user.social_login_id = social_login_id
+        user.social_login_provider = 'kakao'
+    else:
+        user.social_login_id = social_login_id
+        user.social_login_provider = 'kakao'
+    user.last_login = timezone.now()
+    user.save()
+
+    return Response({'id': user.id, 'email': email, 'name': name, 'token': access_token})
+    return Response(data)
+
+# User Signup API
+class SignupView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# User Login API
+
+# Post and Comment APIs
+class PostListView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by("-creation_date")
     serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-class DetailPost(generics.RetrieveAPIView):
+    def perform_create(self, serializer):
+        serializer.save(member=self.request.user)
+
+# 게시물 상세 조회, 업데이트, 삭제 뷰
+class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
-    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-class PostSearchView(generics.ListAPIView):
-    serializer_class = PostSerializer
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return PostCreateUpdateSerializer
+        return PostSerializer
+
+# 댓글 리스트 조회 및 생성 뷰
+class CommentListView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        query = self.request.query_params.get("q", None)
-        if query is not None:
-            return Post.objects.filter(title__icontains=query) | Post.objects.filter(content__icontains=query)
-        return Post.objects.none()
+        post_id = self.kwargs['post_id']
+        return Comment.objects.filter(post_id=post_id, parent__isnull=True)
 
-class CommentListView(views.APIView):
-    def get(self, request, post_id, format=None):
-        comments = Comment.objects.filter(post_id=post_id, parent__isnull=True)
-        serializer = CommentSerializer(comments, many=True, context={"request": request})
-        return Response(serializer.data)
-def api_posts(request):
-    data = {"message": "This is a response from api/posts."}
-    return JsonResponse(data)
+    def perform_create(self, serializer):
+        serializer.save(member=self.request.user)
+
+# 댓글 상세 조회, 업데이트, 삭제 뷰
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return CommentCreateUpdateSerializer
+        return CommentSerializer
+
+class CategoryListCreateView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class IngredientListCreateView(generics.ListCreateAPIView):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+# Food Expiration APIs
+class FoodExpirationListCreateView(generics.ListCreateAPIView):
+    serializer_class = FoodExpirationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return FoodExpiration.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class FoodExpirationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = FoodExpirationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return FoodExpiration.objects.filter(user=self.request.user)

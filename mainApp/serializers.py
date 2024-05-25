@@ -1,12 +1,7 @@
-# rest_framework 모듈에서 serializers를 임포트합니다.
-from mainApp.models import (
-    Post,
-    Comment,
-)  # models.py 파일에서 Post와 Comment 모델을 임포트합니다.
-
-
 from rest_framework import serializers
-from mainApp.models import User
+from mainApp.models import User, Post, Comment
+from .models import FoodExpiration
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -19,13 +14,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            social_login_provider = 'local'
         )
         return user
+
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
 # Comment 모델을 위한 시리얼라이저를 정의합니다.
 class CommentSerializer(serializers.ModelSerializer):
     # SerializerMethodField는 get_<field_name> 메서드의 결과를 필드의 값으로 사용합니다.
@@ -69,3 +67,32 @@ class PostSerializer(serializers.ModelSerializer):
             "content",
             "comments",
         )
+
+# Post 생성 및 업데이트 시리얼라이저
+class PostCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ("title", "content")
+
+# Comment 생성 및 업데이트 시리얼라이저
+class CommentCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("content", "post", "parent")
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = ['id', 'user', 'category', 'name', 'quantity', 'unit', 'expiration_date']
+# serializers.py
+class FoodExpirationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodExpiration
+        fields = '__all__'
+        read_only_fields = ['user']  # 'user' 필드는 읽기 전용으로 설정
+

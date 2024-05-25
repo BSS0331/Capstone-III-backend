@@ -19,17 +19,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'dj_rest_auth',
     'dj_rest_auth.registration',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.naver',
     'corsheaders',
     'mainApp',  # 프로젝트의 메인 애플리케이션
 ]
@@ -74,7 +68,7 @@ WSGI_APPLICATION = 'capstone_lll_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'caps3',
+        'NAME': 'capstone_react',
         'USER': 'kim11',
         'PASSWORD': 'qwer1234@',
         'HOST': '180.66.65.21',
@@ -171,15 +165,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ],
 }
 
 # OAuth 리디렉션 URI 설정
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/google/callback/'
 GOOGLE_CLIENT_ID = "32157736725-r5nop4snh9gf76a6unu1touq9hfhj2ep.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "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"
-NAVER_REDIRECT_URI = 'http://localhost:8000/accounts/naver/login/callback/'
+NAVER_REDIRECT_URI = 'http://localhost:8000/accounts/naver/callback/'
 NAVER_CLIENT_ID = 'DjGy6lYaL3QrYEe5jA8v'
 NAVER_SECRET_KEY = '3cm1u9Dye9'
+KAKAO_API = "https://kakao.com/oauth2/authorize?response_type=code"
+KAKAO_REDIRECT_URI = "http://localhost:8000/kakao/callback"
+KAKAO_CLIENT_ID = "907b1f1307afc2ff851ca03f7d576b22"
