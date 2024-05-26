@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from mainApp.models import User, Post, Comment
+from mainApp.models import User, Post, Comment, Category, Ingredient
 from .models import FoodExpiration
 
 

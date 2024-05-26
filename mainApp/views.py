@@ -11,7 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils import timezone
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.middleware.csrf import get_token
 from .models import Post, Comment, User, FoodExpiration, Category, Ingredient
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer,
@@ -19,11 +20,15 @@ from .serializers import (
     IngredientSerializer, PostCreateUpdateSerializer
 )
 
+def csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
 # Basic REST API test function
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def hello_rest_api(request):
     data = {'message': 'Hello, REST API!'}
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -34,11 +39,23 @@ class LoginView(APIView):
             password = serializer.validated_data['password']
             user = authenticate(request, email=email, password=password)
             if user:
-                user.last_login = timezone.now()
-                user.save()
-                login(request, user)
-                return Response({'message': 'Login successful', 'email': email}, status=status.HTTP_200_OK)
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }, status=status.HTTP_200_OK)
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SignupView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Google login and callback
@@ -95,7 +112,12 @@ def google_callback(request):
     user.last_login = timezone.now()
     user.save()
 
-    return Response({'id': user.id, 'email': email, 'name': name, 'token': access_token})
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    })
+
 
 # Naver login and callback
 @api_view(['GET'])
@@ -158,9 +180,11 @@ def naver_callback(request):
     user.last_login = timezone.now()
     user.save()
 
-
-    return Response({'id': user.id, 'email': email, 'name': name, 'token': access_token})
-
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    })
 # Kakao login and callback
 @api_view(['GET'])
 def kakao_login(request):
@@ -214,19 +238,13 @@ def kakao_callback(request):
     user.last_login = timezone.now()
     user.save()
 
-    return Response({'id': user.id, 'email': email, 'name': name, 'token': access_token})
-    return Response(data)
+    refresh = RefreshToken.for_user(user)
+    return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    })
 
 # User Signup API
-class SignupView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # User Login API
 

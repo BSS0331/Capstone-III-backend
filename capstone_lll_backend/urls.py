@@ -1,5 +1,5 @@
 from mainApp.views import hello_rest_api, naver_login, naver_callback, kakao_login, kakao_callback, PostDetailView, \
-    CategoryListCreateView, IngredientDetailView, IngredientListCreateView, CommentDetailView
+    CategoryListCreateView, IngredientDetailView, IngredientListCreateView, CommentDetailView, csrf_token
 from mainApp.views import LoginView
 from mainApp.views import SignupView
 from django.contrib import admin
@@ -18,6 +18,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/hello/', hello_rest_api, name='hello_rest_api'),
     #로그인
+    path('accounts/', include('allauth.urls')),
+    path('api/csrf_token/', csrf_token, name='csrf_token'),
     path('accounts/signup/', SignupView.as_view(), name='signup'),
     path('accounts/login/', LoginView.as_view(), name='login'),
     path('accounts/google/login/', google_login, name='google_login'),
