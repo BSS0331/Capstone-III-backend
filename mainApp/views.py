@@ -14,12 +14,13 @@ from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.middleware.csrf import get_token
 from .models import Post, Comment, User, FoodExpiration, Category, Ingredient
+from .serializers import UserProfileSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer,
     PostSerializer, CommentSerializer, FoodExpirationSerializer, CommentCreateUpdateSerializer, CategorySerializer,
     IngredientSerializer, PostCreateUpdateSerializer
 )
-
 def csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
@@ -29,6 +30,27 @@ def csrf_token(request):
 def hello_rest_api(request):
     data = {'message': 'Hello, REST API!'}
 
+
+
+
+class UserProfileView(generics.RetrieveAPIView):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+class SignupView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        serializer = UserRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -39,23 +61,13 @@ class LoginView(APIView):
             password = serializer.validated_data['password']
             user = authenticate(request, email=email, password=password)
             if user:
+                login(request, user)
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                 }, status=status.HTTP_200_OK)
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SignupView(APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request, *args, **kwargs):
-        serializer = UserRegistrationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Google login and callback
@@ -324,3 +336,11 @@ class FoodExpirationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIV
 
     def get_queryset(self):
         return FoodExpiration.objects.filter(user=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()

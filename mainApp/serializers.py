@@ -2,7 +2,13 @@ from rest_framework import serializers
 from mainApp.models import User, Post, Comment, Category, Ingredient
 from .models import FoodExpiration
 
+from rest_framework import serializers
+from .models import User
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']  # 프론트엔드에 전달할 필드 선택
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 

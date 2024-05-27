@@ -1,5 +1,8 @@
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 from mainApp.views import hello_rest_api, naver_login, naver_callback, kakao_login, kakao_callback, PostDetailView, \
-    CategoryListCreateView, IngredientDetailView, IngredientListCreateView, CommentDetailView, csrf_token
+    CategoryListCreateView, IngredientDetailView, IngredientListCreateView, CommentDetailView, csrf_token, \
+    UserProfileView
 from mainApp.views import LoginView
 from mainApp.views import SignupView
 from django.contrib import admin
@@ -17,9 +20,12 @@ from mainApp.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/hello/', hello_rest_api, name='hello_rest_api'),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('user/profile/', UserProfileView.as_view(), name='user-profile'),
     #로그인
-    path('accounts/', include('allauth.urls')),
-    path('api/csrf_token/', csrf_token, name='csrf_token'),
+    # path('accounts/', include('allauth.urls')),
+    # path('api/csrf_token/', csrf_token, name='csrf_token'),
     path('accounts/signup/', SignupView.as_view(), name='signup'),
     path('accounts/login/', LoginView.as_view(), name='login'),
     path('accounts/google/login/', google_login, name='google_login'),
