@@ -190,7 +190,7 @@ SIMPLE_JWT = {
 GOOGLE_REDIRECT_URI = 'http://localhost:8000/google/callback/'
 GOOGLE_CLIENT_ID = "32157736725-r5nop4snh9gf76a6unu1touq9hfhj2ep.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET = "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"
-NAVER_REDIRECT_URI = 'http://localhost:8000/accounts/naver/callback/'
+NAVER_REDIRECT_URI = 'http://180.66.65.21:8000/accounts/naver/callback/'
 NAVER_CLIENT_ID = 'DjGy6lYaL3QrYEe5jA8v'
 NAVER_SECRET_KEY = '3cm1u9Dye9'
 KAKAO_API = "https://kakao.com/oauth2/authorize?response_type=code"

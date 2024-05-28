@@ -21,6 +21,7 @@ from .serializers import (
     PostSerializer, CommentSerializer, FoodExpirationSerializer, CommentCreateUpdateSerializer, CategorySerializer,
     IngredientSerializer, PostCreateUpdateSerializer
 )
+#하이빅스비
 def csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
