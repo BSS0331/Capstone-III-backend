@@ -81,16 +81,7 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'caps3',
-#         'USER': 'root',
-#         'PASSWORD': 'wt505033@#',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
+
 
 # 비밀번호 검증기
 AUTH_PASSWORD_VALIDATORS = [
