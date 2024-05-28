@@ -1,11 +1,12 @@
 from pathlib import Path
 from datetime import timedelta
-
+import os
+from dotenv import load_dotenv
 # 기본 디렉토리 설정
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 보안 설정
-SECRET_KEY = 'django-insecure-7@m8fafl@j#gv_h9hc9@ei&0qx7-x$_(ui9&ctz(z42__(x=f='
+SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 # 호스트 및 프론트엔드 URL 설정
@@ -73,11 +74,11 @@ WSGI_APPLICATION = 'capstone_lll_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'capstone_react',
-        'USER': 'kim11',
-        'PASSWORD': 'qwer1234@',
-        'HOST': '180.66.65.21',
-        'PORT': '3306',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 # DATABASES = {
@@ -127,15 +128,15 @@ SOCIALACCOUNT_PROVIDERS = {
             'access_type': 'online'
         },
         'APP': {
-            'client_id': '32157736725-r5nop4snh9gf76a6unu1touq9hfhj2ep.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
             'key': ''
         }
     },
     'naver': {
         'APP': {
-            'client_id': 'DjGy6lYaL3QrYEe5jA8v',
-            'secret': '3cm1u9Dye9',
+            'client_id': os.getenv('NAVER_CLIENT_ID'),
+            'secret': os.getenv('NAVER_SECRET_KEY'),
             'key': ''
         }
     },
@@ -187,13 +188,16 @@ SIMPLE_JWT = {
 }
 
 # OAuth 리디렉션 URI 설정
-GOOGLE_REDIRECT_URI = 'http://localhost:8000/google/callback/'
-GOOGLE_CLIENT_ID = "32157736725-r5nop4snh9gf76a6unu1touq9hfhj2ep.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET = "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"
-NAVER_REDIRECT_URI = 'http://180.66.65.21:8000/accounts/naver/callback/'
-NAVER_CLIENT_ID = 'DjGy6lYaL3QrYEe5jA8v'
-NAVER_SECRET_KEY = '3cm1u9Dye9'
-KAKAO_API = "https://kakao.com/oauth2/authorize?response_type=code"
-KAKAO_REDIRECT_URI = "http://localhost:8000/kakao/callback"
-KAKAO_CLIENT_ID = "907b1f1307afc2ff851ca03f7d576b22"
+load_dotenv()
+
+# 환경 변수 사용
+GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+NAVER_REDIRECT_URI = os.getenv('NAVER_REDIRECT_URI')
+NAVER_CLIENT_ID = os.getenv('NAVER_CLIENT_ID')
+NAVER_SECRET_KEY = os.getenv('NAVER_SECRET_KEY')
+KAKAO_API = os.getenv('KAKAO_API')
+KAKAO_REDIRECT_URI = os.getenv('KAKAO_REDIRECT_URI')
+KAKAO_CLIENT_ID = os.getenv('KAKAO_CLIENT_ID')
 

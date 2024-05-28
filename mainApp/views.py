@@ -32,8 +32,6 @@ def hello_rest_api(request):
     data = {'message': 'Hello, REST API!'}
 
 
-
-
 class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
