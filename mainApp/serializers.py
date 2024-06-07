@@ -8,7 +8,7 @@ from .models import User
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']  # 프론트엔드에 전달할 필드 선택
+        fields = [ 'username', 'email']  # 프론트엔드에 전달할 필드 선택
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -21,7 +21,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            social_login_provider = 'local'
+            social_login_provider = 'local',
         )
         return user
 
@@ -102,3 +102,7 @@ class FoodExpirationSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['user']  # 'user' 필드는 읽기 전용으로 설정
 
+class FoodExpirationNearExpirySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FoodExpiration
+        fields = ['food_name', 'expiration_date']

@@ -2,11 +2,17 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+from django.core.management.utils import get_random_secret_key
+
 # 기본 디렉토리 설정
 BASE_DIR = Path(__file__).resolve().parent.parent
+# .env 파일의 경로를 설정합니다.
+load_dotenv()
 
 # 보안 설정
-SECRET_KEY = os.getenv('SECRET_KEY')
+# SECRET_KEY = os.getenv('SECRET_KEY')
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', get_random_secret_key())
 DEBUG = True
 
 # 호스트 및 프론트엔드 URL 설정
@@ -173,8 +179,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=10),
     'ROTATE_REFRESH_TOKENS': True,
 }
 
@@ -182,6 +188,8 @@ SIMPLE_JWT = {
 load_dotenv()
 
 # 환경 변수 사용
+
+
 GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI')
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')

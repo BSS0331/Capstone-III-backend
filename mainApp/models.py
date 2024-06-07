@@ -17,18 +17,15 @@ class CustomUserManager(BaseUserManager):
 
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_staff', True)
 
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
 
         return self.create_user(email, password, **extra_fields)
 
 class User(AbstractBaseUser):
     objects = CustomUserManager()
-    username = models.CharField(max_length=50, unique=True)
+    username = models.CharField(max_length=50)
     email = models.EmailField(max_length=100, unique=True)
     password = models.CharField(max_length=255)  # 이미 해시된 비밀번호라고 가정
     created_at = models.DateTimeField(auto_now_add=True)

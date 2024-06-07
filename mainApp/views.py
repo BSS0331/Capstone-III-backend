@@ -1,5 +1,7 @@
 import os
 import secrets
+from datetime import date, timedelta
+
 import requests
 from django.shortcuts import render, redirect
 from django.conf import settings
@@ -14,14 +16,13 @@ from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.middleware.csrf import get_token
 from .models import Post, Comment, User, FoodExpiration, Category, Ingredient
-from .serializers import UserProfileSerializer
+from .serializers import UserProfileSerializer, FoodExpirationNearExpirySerializer
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer,
     PostSerializer, CommentSerializer, FoodExpirationSerializer, CommentCreateUpdateSerializer, CategorySerializer,
     IngredientSerializer, PostCreateUpdateSerializer
 )
-#하이빅스비
 def csrf_token(request):
     csrf_token = get_token(request)
     return JsonResponse({'csrfToken': csrf_token})
@@ -32,12 +33,16 @@ def hello_rest_api(request):
     data = {'message': 'Hello, REST API!'}
 
 
+
+
 class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+
+
 class SignupView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
@@ -46,8 +51,9 @@ class SignupView(APIView):
             user = serializer.save()
             refresh = RefreshToken.for_user(user)
             return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
+                "hello world": "sex",
+                # 'refresh': str(refresh),
+                # 'access': str(refresh.access_token),
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class LoginView(APIView):
@@ -72,14 +78,13 @@ class LoginView(APIView):
 # Google login and callback
 @api_view(['GET'])
 def google_login(request):
-    client_id = settings.GOOGLE_CLIENT_ID
-    redirect_uri = settings.GOOGLE_REDIRECT_URI
     state = secrets.token_hex(16)
     request.session['oauth_state'] = state
     auth_url = (
-        f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}"
+        f"https://accounts.google.com/o/oauth2/v2/auth?client_id={settings.GOOGLE_CLIENT_ID}&redirect_uri={settings.GOOGLE_REDIRECT_URI}"
         f"&response_type=code&scope=openid%20email%20profile&state={state}"
     )
+    print(auth_url)
     return redirect(auth_url)
 
 @api_view(['GET'])
@@ -343,3 +348,13 @@ class FoodExpirationRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIV
 
     def perform_destroy(self, instance):
         instance.delete()
+
+
+class FoodExpirationNearExpiryView(generics.ListAPIView):
+    serializer_class = FoodExpirationNearExpirySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        near_expiry_date = date.today() + timedelta(days=7)  # 7일 이내에 만료되는 식품 조회
+        return FoodExpiration.objects.filter(user=user, expiration_date__lte=near_expiry_date)

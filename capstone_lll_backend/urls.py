@@ -13,6 +13,7 @@ from mainApp.views import (
     CommentListView,  # 특정 포스트에 대한 댓글을 리스트하는 뷰
     FoodExpirationListCreateView,
     FoodExpirationRetrieveUpdateDestroyView,
+    FoodExpirationNearExpiryView,
     # api_posts,
 )
 
@@ -37,6 +38,8 @@ urlpatterns = [
     #food
     path('food/', FoodExpirationListCreateView.as_view(), name='food-list-create'),
     path('food/<int:pk>/', FoodExpirationRetrieveUpdateDestroyView.as_view(), name='food-detail'),
+
+    path("food/nearfood/", FoodExpirationNearExpiryView.as_view(), name='food-near'),
     #post
     path("posts/", PostListView.as_view(), name="list_posts"),  # 게시물 리스트 조회 및 생성 URL
     path("posts/<int:pk>/", PostDetailView.as_view(), name="detail_post"),  # 게시물 상세 조회, 업데이트, 삭제 URL
