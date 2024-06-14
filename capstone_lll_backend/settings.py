@@ -21,7 +21,7 @@ FRONTEND_URL = 'http://localhost:19006'
 
 # 설치된 애플리케이션
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -30,29 +30,21 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
     'corsheaders',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
     'mainApp',  # 프로젝트의 메인 애플리케이션
 ]
 
 # 미들웨어 설정
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',  # 추가
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
 ]
-
 # URL 설정
 ROOT_URLCONF = 'capstone_lll_backend.urls'
 
@@ -111,9 +103,7 @@ AUTH_USER_MODEL = 'mainApp.User'  # 'your_app_name'은 User 모델이 정의된 
 # 인증 및 권한 부여 설정
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
 ]
-
 # 소셜 계정 제공자 설정
 SOCIALACCOUNT_PROVIDERS = {
     'google': {

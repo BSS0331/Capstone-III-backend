@@ -19,10 +19,10 @@ from mainApp.views import (
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     path('api/hello/', hello_rest_api, name='hello_rest_api'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('accounts/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('user/profile/', UserProfileView.as_view(), name='user-profile'),
     #로그인
     # path('accounts/', include('allauth.urls')),
