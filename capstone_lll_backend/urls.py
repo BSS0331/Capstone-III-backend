@@ -1,8 +1,9 @@
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
+from django.conf.urls.static import static
+from capstone_lll_backend import settings
 from mainApp.views import hello_rest_api, naver_login, naver_callback, kakao_login, kakao_callback, PostDetailView, \
     CategoryListCreateView, IngredientDetailView, IngredientListCreateView, CommentDetailView, csrf_token, \
-    UserProfileView
+    UserProfileView, upload_image
 from mainApp.views import LoginView
 from mainApp.views import SignupView
 from django.contrib import admin
@@ -48,6 +49,7 @@ urlpatterns = [
     path('categories/', CategoryListCreateView.as_view(), name='category_list_create'),
     path('ingredients/', IngredientListCreateView.as_view(), name='ingredient_list_create'),
     path('ingredients/<int:pk>/', IngredientDetailView.as_view(), name='ingredient_detail'),
+    path('upload/', upload_image, name='upload_image'),  # 이미지 업로드 URL
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

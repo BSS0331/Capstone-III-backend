@@ -53,7 +53,7 @@ class User(AbstractBaseUser):
 class Post(models.Model):
     member = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     title = models.CharField(max_length=255)  # 게시물의 제목
-    content = models.TextField()  # 게시물의 내용
+    content = models.TextField()  # 게시물의 내용 (이미지 URL 포함)
     creation_date = models.DateTimeField(auto_now_add=True)  # 게시물의 생성 날짜
 
     def __str__(self):
@@ -94,6 +94,7 @@ class Ingredient(models.Model):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
 
 
 

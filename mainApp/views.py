@@ -3,6 +3,7 @@ import secrets
 from datetime import date, timedelta
 
 import requests
+from django.contrib.messages.storage import default_storage
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import JsonResponse
@@ -264,64 +265,95 @@ def kakao_callback(request):
 
 # User Login API
 
-# Post and Comment APIs
+# 게시글 목록 및 생성 뷰
 class PostListView(generics.ListCreateAPIView):
-    queryset = Post.objects.all().order_by("-creation_date")
+    queryset = Post.objects.all().order_by("-creation_date")  # 게시글을 생성 날짜 기준으로 정렬
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # 인증된 사용자 또는 읽기 전용
 
     def perform_create(self, serializer):
-        serializer.save(member=self.request.user)
+        content = self.request.data.get('content', '')  # 요청 데이터에서 내용을 가져옴
+        serializer.save(member=self.request.user, content=content)  # 게시글 생성 시 유저와 내용을 저장
 
-# 게시물 상세 조회, 업데이트, 삭제 뷰
+# 게시글 상세, 수정 및 삭제 뷰
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = Post.objects.all()  # 모든 게시글 쿼리셋
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # 인증된 사용자 또는 읽기 전용
 
     def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH']:
+        if self.request.method in ['PUT', 'PATCH']:  # 수정 요청일 경우
             return PostCreateUpdateSerializer
-        return PostSerializer
+        return PostSerializer  # 조회 요청일 경우
 
-# 댓글 리스트 조회 및 생성 뷰
+# 댓글 목록 및 생성 뷰
 class CommentListView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # 인증된 사용자 또는 읽기 전용
 
     def get_queryset(self):
-        post_id = self.kwargs['post_id']
-        return Comment.objects.filter(post_id=post_id, parent__isnull=True)
+        post_id = self.kwargs['post_id']  # URL에서 post_id를 가져옴
+        return Comment.objects.filter(post_id=post_id, parent__isnull=True)  # 해당 게시글의 최상위 댓글만 가져옴
 
     def perform_create(self, serializer):
-        serializer.save(member=self.request.user)
+        serializer.save(member=self.request.user)  # 댓글 생성 시 유저를 저장
 
-# 댓글 상세 조회, 업데이트, 삭제 뷰
+# 댓글 상세, 수정 및 삭제 뷰
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Comment.objects.all()
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    queryset = Comment.objects.all()  # 모든 댓글 쿼리셋
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # 인증된 사용자 또는 읽기 전용
 
     def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH']:
+        if self.request.method in ['PUT', 'PATCH']:  # 수정 요청일 경우
             return CommentCreateUpdateSerializer
-        return CommentSerializer
+        return CommentSerializer  # 조회 요청일 경우
 
+# 카테고리 목록 및 생성 뷰
 class CategoryListCreateView(generics.ListCreateAPIView):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all()  # 모든 카테고리 쿼리셋
     serializer_class = CategorySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # 인증된 사용자 또는 읽기 전용
 
+# 재료 목록 및 생성 뷰
 class IngredientListCreateView(generics.ListCreateAPIView):
-    queryset = Ingredient.objects.all()
+    queryset = Ingredient.objects.all()  # 모든 재료 쿼리셋
     serializer_class = IngredientSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # 인증된 사용자 또는 읽기 전용
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user)  # 재료 생성 시 유저를 저장
 
+# 재료 상세, 수정 및 삭제 뷰
 class IngredientDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Ingredient.objects.all()
+    queryset = Ingredient.objects.all()  # 모든 재료 쿼리셋
     serializer_class = IngredientSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # 인증된 사용자 또는 읽기 전용
+
+# 이미지 업로드 API 뷰
+@api_view(['POST'])
+def upload_image(request):
+    file = request.FILES['file']  # 업로드된 파일 가져오기
+    file_name = default_storage.save(file.name, file)  # 파일 저장
+    file_url = default_storage.url(file_name)  # 파일 URL 가져오기
+    return Response({'file_url': file_url}, status=201)  # 파일 URL 반환
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Food Expiration APIs
 class FoodExpirationListCreateView(generics.ListCreateAPIView):
