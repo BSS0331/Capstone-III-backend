@@ -32,7 +32,8 @@
 ## 사용법
 
 1. .env파일을 루트 디렉토리 파일에 추가합니다.
-   
+   ![스크린샷 2024-06-15 160352](https://github.com/BSS0331/Capstone-III-backend/assets/153978154/b706aab0-e208-4f39-aa92-363dc67554ff)
+
 3. 터미널에서 프로젝트를 실행합니다.
      ```bash
      python manage.py runserver
