@@ -38,7 +38,7 @@
      python manage.py runserver
       ``` 
 ## 디렉토리 구조
-    ```bash
+
      CAPSTONE-III
     ├── .idea
     ├── backend
@@ -68,4 +68,3 @@
     ├── kakusi.pub
     ├── manage.py
     ├── README.md
-    ``` 
