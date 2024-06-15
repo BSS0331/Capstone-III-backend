@@ -37,5 +37,35 @@
      ```bash
      python manage.py runserver
       ``` 
-## 기능
-
+## 디렉토리 구조
+    ```bash
+     CAPSTONE-III
+    ├── .idea
+    ├── backend
+    │   ├── capstonelllbackend
+    │   │   ├── pycache
+    │   │   ├── init.py
+    │   │   ├── asgi.py
+    │   │   ├── settings.py
+    │   │   ├── urls.py
+    │   │   ├── wsgi.py
+    ├── media
+    ├── mainApp
+    │   ├── pycache
+    │   ├── migrations
+    │   │   ├── init.py
+    │   ├── __init.py
+    │   ├── admin.py
+    │   ├── apps.py
+    │   ├── models.py
+    │   ├── serializers.py
+    │   ├── tests.py
+    │   ├── views.py
+    ├── media
+    ├── .env
+    ├── .gitignore
+    ├── kakusi
+    ├── kakusi.pub
+    ├── manage.py
+    ├── README.md
+  ``` 
