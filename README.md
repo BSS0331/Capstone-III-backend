@@ -26,13 +26,7 @@
     ```
 3. 필요한 의존성을 설치합니다:
     ```bash
-    pip install djangorestframework
-    pip install djangorestframework-simplejwt
-    pip install dj-rest-auth
-    pip install django-cors-headers
-    pip install django-allauth
-    pip install mysqlclient
-    pip install requests
+   pip install python-dotenv
     ```
 
 ## 사용법
