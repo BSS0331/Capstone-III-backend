@@ -15,32 +15,32 @@
 ###설치방범
 1. 저장소를 클론합니다:
     ```bash
-    git clone https://github.com/BSS0331/Capstone-III.git Capstone-III
+    https://github.com/BSS0331/Capstone-III-backend.git
     ```
 2. 프로젝트 디렉토리로 이동합니다:
     ```bash
     cd Capstone-III
     ```
 3. 필요한 의존성을 설치합니다:
-```bash
-pip install djangorestframework
-```
-```bash
-pip install djangorestframework-simplejwt
-```
-```bash
-pip install dj-rest-auth
-```
-```bash
-pip install django-cors-headers
-```
-```bash
-pip install django-allauth
-```
-```bash
-pip install mysqlclient
-```
-```bash
-pip install requests
-```
+ ```bash
+ pip install djangorestframework
+ ```
+ ```bash
+ pip install djangorestframework-simplejwt
+ ```
+ ```bash
+ pip install dj-rest-auth
+ ```
+ ```bash
+ pip install django-cors-headers
+ ```
+ ```bash
+ pip install django-allauth
+ ```
+ ```bash
+ pip install mysqlclient
+ ```
+ ```bash
+ pip install requests
+ ```
 
