@@ -9,7 +9,8 @@
 
  ###필요조건
 
--PYTHON (버전 3.10.#  이상)
+-python (버전 3.10.#  이상)
+-django (버전5.0.# 이상)
 
 
 ###설치방범
@@ -22,25 +23,25 @@
     cd Capstone-III
     ```
 3. 필요한 의존성을 설치합니다:
- ```bash
- pip install djangorestframework
- ```
- ```bash
- pip install djangorestframework-simplejwt
- ```
- ```bash
- pip install dj-rest-auth
- ```
- ```bash
- pip install django-cors-headers
- ```
- ```bash
- pip install django-allauth
- ```
- ```bash
- pip install mysqlclient
- ```
- ```bash
- pip install requests
- ```
+    ```bash
+    pip install djangorestframework
+    ```
+    ```bash
+    pip install djangorestframework-simplejwt
+    ```
+    ```bash
+    pip install dj-rest-auth
+    ```
+    ```bash
+    pip install django-cors-headers
+    ```
+    ```bash
+    pip install django-allauth
+    ```
+    ```bash
+    pip install mysqlclient
+    ```
+    ```bash
+    pip install requests
+    ```
 
