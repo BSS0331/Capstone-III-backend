@@ -2,26 +2,32 @@ from rest_framework import serializers
 from mainApp.models import User, Post, Comment, Category, Ingredient
 from .models import FoodExpiration
 from .models import User
-
+# 사용자 프로필 시리얼라이저
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = [ 'username', 'email']  # 프론트엔드에 전달할 필드 선택
+        fields = ['username', 'email']  # 프론트엔드에 전달할 필드 선택
+
+# 사용자 등록 시리얼라이저
 class UserRegistrationSerializer(serializers.ModelSerializer):
+    # 비밀번호 필드는 쓰기 전용으로 설정합니다.
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password')
+        fields = ('username', 'email', 'password')  # 사용자 등록 시 필요한 필드
 
+    # 사용자 생성 메서드를 재정의합니다.
     def create(self, validated_data):
+        # User 객체를 생성하고, 추가적으로 소셜 로그인 제공자를 'local'로 설정합니다.
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
-            social_login_provider = 'local',
+            social_login_provider='local',  # 로컬 회원가입으로 설정
         )
         return user
+
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -97,13 +103,15 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'category', 'name', 'quantity', 'unit', 'expiration_date']  # 시리얼라이징할 필드들
 
 # serializers.py
+# FoodExpiration 모델 시리얼라이저
 class FoodExpirationSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodExpiration
-        fields = '__all__'
+        fields = '__all__'  # 모든 필드를 포함
         read_only_fields = ['user']  # 'user' 필드는 읽기 전용으로 설정
 
+# 만료 임박 식품 조회를 위한 시리얼라이저
 class FoodExpirationNearExpirySerializer(serializers.ModelSerializer):
     class Meta:
         model = FoodExpiration
-        fields = ['food_name', 'expiration_date']
+        fields = ['food_name', 'expiration_date']  # 'food_name'과 'expiration_date' 필드만 포함

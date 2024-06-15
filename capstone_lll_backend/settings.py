@@ -73,6 +73,7 @@ TEMPLATES = [
 # WSGI 애플리케이션 설정
 WSGI_APPLICATION = 'capstone_lll_backend.wsgi.application'
 
+print(os.getenv('DB_NAME'))
 # 데이터베이스 설정
 DATABASES = {
     'default': {

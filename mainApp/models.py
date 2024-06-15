@@ -5,6 +5,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import AbstractBaseUser
+
+# 사용자 모델 관리를 위한 커스텀 매니저 클래스입니다.
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -23,6 +25,7 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
+# 커스텀 사용자 모델입니다.
 class User(AbstractBaseUser):
     objects = CustomUserManager()
     username = models.CharField(max_length=50)
@@ -31,23 +34,20 @@ class User(AbstractBaseUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     last_login = models.DateTimeField(auto_now=True)
-    # Django가 사용자 모델에 대해 필요로 하는 필드
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     social_login_id = models.CharField(max_length=100, null=True, blank=True)
     social_login_provider = models.CharField(max_length=20, null=True, blank=True)
+
     # 사용자의 'username' 필드를 'email' 필드로 사용하도록 설정
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    # 여기에 사용자 모델 관리를 위한 매니저 클래스를 추가할 수 있습니다.
-    # objects = CustomUserManager()
     def __str__(self):
         return self.email
 
     # 여기에 필요한 메소드를 추가합니다.
     # 예를 들어, 'is_staff'나 'has_perm' 같은 메소드를 추가해야 할 수도 있습니다.
-
 
 # 게시물을 나타내는 모델입니다.
 class Post(models.Model):
@@ -95,11 +95,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
 
-
-
-
-
-#유통기한
+# 유통기한 모델입니다.
 class FoodExpiration(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # 기본값으로 사용자 ID 1을 설정
     food_name = models.CharField(max_length=255)
