@@ -1,5 +1,5 @@
 ﻿[Frontend](https://github.com/BSS0331/Capstone-III)
- # 식품 관리와 레시피 추천 모바일 앱 백엔드
+#식품 관리와 레시피 추천 모바일 앱 백엔드
 
  ##소개
 
